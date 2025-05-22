@@ -1,0 +1,23 @@
+FROM livox_ros2:humble
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install debian packages
+RUN sudo apt-get update && sudo apt-get install -y \
+        python3-pip \
+        ros-humble-sophus \
+        ros-humble-pcl-ros \
+        ros-humble-tf2 \
+        ros-humble-tf2-geometry-msgs \
+        ros-humble-compressed-image-transport \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+RUN sudo pip3 install --no-cache-dir rosbags
+
+WORKDIR /home/devuser/ros2_ws/src
+RUN git clone https://github.com/integralrobotics/rpg_vikit.git \
+    && git clone https://github.com/integralrobotics/FAST-LIVO2.git \
+    && bash -c "source /opt/ros/humble/setup.bash && source /home/devuser/livox_ws/install/setup.bash && cd .. && colcon build --symlink-install --continue-on-error" \
+    && bash -c "source ~/ros2_ws/install/setup.bash"
+
+COPY launch/run.sh launch/playback_fast_livo2_launch.py ./
