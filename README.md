@@ -15,7 +15,7 @@ easy operation and data recording.
 
 ![FAST-LIVO2 Example Output](resources/fast-lio.gif)
 
-### Pulling Prebuilt Images from Docker Hub
+## Pulling Prebuilt Images from Docker Hub
 
 Prebuilt images for all supported configurations are available for your convenience on [Docker Hub](https://hub.docker.com/repository/docker/tedsamu/livox_ros2).
 
