@@ -15,23 +15,43 @@ easy operation and data recording.
 
 ![FAST-LIVO2 Example Output](resources/fast-lio.gif)
 
+### Pulling Prebuilt Images from Docker Hub
+
+Prebuilt images for all supported configurations are available for your convenience on [Docker Hub](https://hub.docker.com/repository/docker/tedsamu/livox_ros2).
+
+- **Base image:** `tedsamu/livox_ros2:humble` (ROS2 + Livox drivers)
+- **With FAST_LIO:** `tedsamu/livox_ros2:humble-fast_lio`
+- **With FAST_LIVO2:** `tedsamu/livox_ros2:humble-fast_livo2`
+
+To pull an image, use:
+
+```bash
+docker pull tedsamu/livox_ros2:humble
+# or
+docker pull tedsamu/livox_ros2:humble-fast_lio
+# or
+docker pull tedsamu/livox_ros2:humble-fast_livo2
+```
+
+Refer to the [Docker Hub page](https://hub.docker.com/repository/docker/tedsamu/livox_ros2) for more details and tags.
+
 ## Building the Images
 
 ### 1. Livox ROS2 Image
 ```bash
-docker build -t livox_ros2:humble .
+docker build -t tedsamu/livox_ros2:humble .
 ```
 
 ### 2. FAST_LIO2 (optional)
 This image depends on the Livox ROS2 image, which needs to be available.
 ```bash
-docker build -f ./Dockerfile-fast_lio -t livox_ros2:humble-fast_lio .
+docker build -f ./Dockerfile-fast_lio -t tedsamu/livox_ros2:humble-fast_lio .
 ```
 
 ### 3. FAST_LIVO2 (optional)
 This image depends on the Livox ROS2 image, which needs to be available.
 ```bash
-docker build -f ./Dockerfile-fast_livo2 -t livox_ros2:humble-fast_livo2 .
+docker build -f ./Dockerfile-fast_livo2 -t tedsamu/livox_ros2:humble-fast_livo2 .
 ```
 
 ## Running the Containers
@@ -46,7 +66,7 @@ launch file depending on the sensor you are using):
 ```bash
 docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix/:/tmp/.X11-unix \
-  --name livox_container livox_ros2:humble \
+  --name livox_container tedsamu/livox_ros2:humble \
   /bin/bash -c "./run.sh <sensor-id> ros2 launch livox_ros_driver2 rviz_MID360_launch.py"
 ```
 _Note: the <sensor-id> should be set to the last two digits of the sensor serial number._
@@ -56,7 +76,7 @@ environment. This is easiest done by omitting any command to `docker run`, e.g.
 ```bash
 docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix/:/tmp/.X11-unix \
-  --name livox_container livox_ros2:humble
+  --name livox_container tedsamu/livox_ros2:humble
 ```
 
 ### Record raw data (PointCloud2 + IMU)
@@ -66,7 +86,7 @@ sensor_msgs/PointCloud2 format and IMU data in sensor_msgs/IMU format.
 ```bash
 docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix/:/tmp/.X11-unix -v .:/log \
-  --name livox_container livox_ros2:humble \
+  --name livox_container tedsamu/livox_ros2:humble \
   /bin/bash -c "cd /log && ./run.sh <sensor-id> ros2 launch record_MID360_launch.py"
 ```
 The rosbags will be located in the same folder as the container was started from.
@@ -76,7 +96,7 @@ Use the supplied launch file to run the livox driver together with FAST_LIO mapp
 ```bash
 docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix/:/tmp/.X11-unix \
-  --name livox_fast_lio_container livox_ros2:humble-fast_lio \
+  --name livox_container tedsamu/livox_ros2:humble-fast_lio \
   /bin/bash -c "./run.sh <sensor-id> ros2 launch fast_lio_MID360_launch.py"
 ```
 
@@ -84,7 +104,7 @@ Set the record parameter if you want to record raw data (lidar data in CustomMsg
 ```bash
 docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix/:/tmp/.X11-unix -v .:/log \
-  --name livox_fast_lio_container livox_ros2:humble-fast_lio \
+  --name livox_container tedsamu/livox_ros2:humble-fast_lio \
   /bin/bash -c "cd /log && /home/devuser/ros2_ws/src/run.sh <sensor-id> \
   ros2 launch /home/devuser/ros2_ws/src/fast_lio_MID360_launch.py \
   record:=true"
@@ -95,7 +115,7 @@ To run FAST-LIO with a recorded bag use the follwing command:
 ```bash
 docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix/:/tmp/.X11-unix -v .:/log \
-  --name livox_fast_lio_container livox_ros2:humble-fast_lio \
+  --name livox_container tedsamu/livox_ros2:humble-fast_lio \
   /bin/bash -c "./run.sh ros2 launch playbag_fast_lio_MID360_launch.py bag_file:=/log/<bag-file-name>"
 ```
 
@@ -109,7 +129,7 @@ already installed on the image. To convert a ROS1 bag called `HKU_Centennial_Gar
 in the repo root, run:
 
 ```bash
-docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY   -v /tmp/.X11-unix/:/tmp/.X11-unix -v ./rosbags:/log  --name livox_container livox_ros2:humble-fast_livo2 /bin/bash -c "rosbags-convert --src /log/HKU_Centennial_Garden.bag --dst /log/HKU_Centennial_Garden"
+docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY   -v /tmp/.X11-unix/:/tmp/.X11-unix -v ./rosbags:/log  --name livox_container tedsamu/livox_ros2:humble-fast_livo2 /bin/bash -c "rosbags-convert --src /log/HKU_Centennial_Garden.bag --dst /log/HKU_Centennial_Garden"
 ```
 _Note: Adjust the mount location (`./rosbags`) and the bagfile name ('HKU_Centennial_Garden') for your file._
 
@@ -127,7 +147,7 @@ To run FAST-LIVO2 with the converted bag file run (adjust bagfile name if needed
 ```bash
 docker run --rm -it --privileged --network=host -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix/:/tmp/.X11-unix -v ./rosbags:/log \
-  --name livox_fast_livo2_container livox_ros2:humble-fast_livo2 \
+  --name livox_container tedsamu/livox_ros2:humble-fast_livo2 \
   /bin/bash -c "./run.sh ros2 launch playback_fast_livo2_launch.py bag_file:=/log/HKU_Centennial_Garden"
 ```
 _Note: The playback of the bag file is delayed by 10s to let FAST-LIO2 start up properly before any messages are sent._
